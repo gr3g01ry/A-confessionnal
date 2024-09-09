@@ -59,13 +59,22 @@ app.get("/logout", (req, res) => {
 app.get("/secrets",async (req, res) => {
   //TODO: Update this to pull in the user secret to render in secrets.ejs
   if (req.isAuthenticated()) {
-    console.log(req.user);
-    let res_user_id=req.user.id;
-    let result=await db.query('Select * from users JOIN secrets ON secrets.user_id=users.id where secrets.user_id=$1',[res_user_id]);
-    console.log(result.rows);
-    let sins=result.rows
-    res.render("secrets.ejs",{sins});
-    // res.send('secret');
+    try {
+      console.log(req.user);
+      let res_user_id=req.user.id;
+      let result=await db.query('Select * from users JOIN secrets ON secrets.user_id=users.id where secrets.user_id=$1',[res_user_id]);
+      console.log(result.rows);
+      let sins=result.rows
+      if(sins){
+        res.render("secrets.ejs",{sins});
+        // res.send('secret');
+      }else{
+        res.render("secrets.ejs",{sins:"You are sur you have no sins &#128013"})
+      }
+    } catch (error) {
+      console.log(err);
+      res.redirect("/login");
+    }
   } else {
     res.redirect("/login");
   }
